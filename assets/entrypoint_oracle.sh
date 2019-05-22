@@ -2,9 +2,8 @@
 
 set -e
 source /assets/colorecho
-source ~/.bashrc
 
-alert_log="$ORACLE_BASE/diag/rdbms/orcl/$ORACLE_SID/trace/alert_$ORACLE_SID.log"
+alert_log="$ORACLE_BASE/diag/rdbms/$ORACLE_SID/$ORACLE_SID/trace/alert_$ORACLE_SID.log"
 listener_log="$ORACLE_BASE/diag/tnslsnr/$HOSTNAME/listener/trace/listener.log"
 pfile=$ORACLE_HOME/dbs/init$ORACLE_SID.ora
 
@@ -48,9 +47,10 @@ create_db() {
 	#MON_LSNR_PID=$!
         echo "START DBCA"
 	dbca -silent -createDatabase -responseFile /assets/dbca.rsp
+	sed -i 's/MK_EMAGENT_NMECTL)/MK_EMAGENT_NMECTL)\ -lnnz11/g' $ORACLE_HOME/sysman/lib/ins_emagent.mk
+	make -f $ORACLE_HOME/sysman/lib/ins_emagent.mk agent nmhs >> "${alert_log}" 2>&1
 	echo_green "Database created."
 	date "+%F %T"
-	change_dpdump_dir
         touch $pfile
 	trap_db
         kill $MON_ALERT_PID
@@ -76,18 +76,6 @@ shu_immediate() {
 	EOF
 	while read line; do echo -e "sqlplus: $line"; done
 }
-
-change_dpdump_dir () {
-	echo_green "Changind dpdump dir to /opt/oracle/dpdump"
-	sqlplus / as sysdba <<-EOF |
-		create or replace directory data_pump_dir as '/opt/oracle/dpdump';
-		commit;
-		exit 0
-	EOF
-	while read line; do echo -e "sqlplus: $line"; done
-}
-
-chmod 777 /opt/oracle/dpdump
 
 echo "Checking shared memory..."
 df -h | grep "Mounted on" && df -h | egrep --color "^.*/dev/shm" || echo "Shared memory is not mounted."

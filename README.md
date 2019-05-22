@@ -23,10 +23,6 @@ OS users:
 DB users:
 * SYS/oracle
 
-Optionally you can map dpdump folder to easy upload dumps:
-```sh
-docker run --privileged --name oracle11g -p 1521:1521 -v <install_folder>:/install -v <local_dpdump>:/opt/oracle/dpdump jaspeen/oracle-11g
-```
 To execute impdp/expdp just use docker exec command:
 ```sh
 docker exec -it oracle11g impdp ..
