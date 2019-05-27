@@ -16,12 +16,14 @@ docker commit oracle11g oracle11g-installed
 
 Database located in **/opt/oracle** folder
 
-OS users:
+OS users(assets/setup.sh: line 23 24):
 * root/install
 * oracle/install
 
-DB users:
+DB users(assets/dbca.rsp: line 211 221 252 262):
 * SYS/oracle
+
+DB SID(assets/dbca.rsp: line 78 170 asserts/profile: line 2):
 
 To execute impdp/expdp just use docker exec command:
 ```sh
